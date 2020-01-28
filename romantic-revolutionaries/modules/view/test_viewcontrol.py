@@ -44,4 +44,3 @@ class TestViewControl(unittest.TestCase):
         self.vc.look(Directions.SOUTH)
         self.vc.look(Directions.EAST)
         self.vc.look(Directions.WEST)
-

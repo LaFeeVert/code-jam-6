@@ -1,4 +1,4 @@
-""" Command Control Module """
+"""Command Control Module."""
 
 import re
 
@@ -8,47 +8,76 @@ from kivy.app import App
 
 
 class Command:
+    """Command class."""
+
     def __init__(self, method, hotkeys):
+        """Init instance."""
         self.method = method
         self.hotkeys = hotkeys
         self.app = App.get_running_app()
 
     def __str__(self):
+        """Conver to string."""
         return f"{self.hotkey}: {self.name}"
 
 
 class Help(Command):
+    """Get help."""
+
     def __init__(self):
-        super().__init__(method=None, hotkeys=['help', '?', 'h'])
+        """Initialize instance."""
+        super().__init__(method=None, hotkeys=["help", "?", "h"])
 
     def parse(self, text):
-        self.app.add_text("""[color=00FFFF]Movement:[/color]
+        """Parse the command."""
+        self.app.add_text(
+            """[color=00FFFF]Movement:[/color]
         [go/move/walk] [north/south/east/west] [distance]
-        """)
+        """
+        )
 
         return True
 
 
 class Move(Command):
+    """Move it."""
+
     def __init__(self, nav_control):
-        super().__init__(method=nav_control.go, hotkeys=['go', 'move', 'head', 'walk', 'run',
-                                                         'north', 'east', 'south', 'west',
-                                                         'n', 'e', 's', 'w'])
+        """Initialize instance."""
+        super().__init__(
+            method=nav_control.go,
+            hotkeys=[
+                "go",
+                "move",
+                "head",
+                "walk",
+                "run",
+                "north",
+                "east",
+                "south",
+                "west",
+                "n",
+                "e",
+                "s",
+                "w",
+            ],
+        )
         self.nav_control = nav_control
         self.directions = {
-            'north': Directions.NORTH,
-            'east': Directions.EAST,
-            'south': Directions.SOUTH,
-            'west': Directions.WEST,
-            'n': Directions.NORTH,
-            'e': Directions.EAST,
-            's': Directions.SOUTH,
-            'w': Directions.WEST
+            "north": Directions.NORTH,
+            "east": Directions.EAST,
+            "south": Directions.SOUTH,
+            "west": Directions.WEST,
+            "n": Directions.NORTH,
+            "e": Directions.EAST,
+            "s": Directions.SOUTH,
+            "w": Directions.WEST,
         }
 
     def parse(self, words):
+        """Parse the command."""
         direction, distance = None, None
-        match = re.match(rf'({"|".join(self.hotkeys)})?( )?([a-zA-Z]+)?( )?(\d+)?', ' '.join(words))
+        match = re.match(rf'({"|".join(self.hotkeys)})?( )?([a-zA-Z]+)?( )?(\d+)?', " ".join(words))
 
         if match:
             if match.group(1) in list(self.directions.keys()):
@@ -63,26 +92,32 @@ class Move(Command):
         self.method(direction, distance)
         return True
 
+
 class Look(Command):
+    """Look in a direction."""
+
     def __init__(self, view_control):
-        super().__init__(method=view_control.look, hotkeys=['look',
-                                                         'north', 'east', 'south', 'west',
-                                                         'n', 'e', 's', 'w'])
+        """Initialize instance."""
+        super().__init__(
+            method=view_control.look,
+            hotkeys=["look", "north", "east", "south", "west", "n", "e", "s", "w"],
+        )
         self.view_control = view_control
         self.directions = {
-            'north': Directions.NORTH,
-            'east': Directions.EAST,
-            'south': Directions.SOUTH,
-            'west': Directions.WEST,
-            'n': Directions.NORTH,
-            'e': Directions.EAST,
-            's': Directions.SOUTH,
-            'w': Directions.WEST
+            "north": Directions.NORTH,
+            "east": Directions.EAST,
+            "south": Directions.SOUTH,
+            "west": Directions.WEST,
+            "n": Directions.NORTH,
+            "e": Directions.EAST,
+            "s": Directions.SOUTH,
+            "w": Directions.WEST,
         }
 
     def parse(self, words):
-        direction
-        match = re.match(rf'({"|".join(self.hotkeys)})?( )?([a-zA-Z]+)?( )?(\d+)?', ' '.join(words))
+        """Parse the command."""
+        # direction
+        match = re.match(rf'({"|".join(self.hotkeys)})?( )?([a-zA-Z]+)?( )?(\d+)?', " ".join(words))
 
         if match:
             if match.group(1) in list(self.directions.keys()):
@@ -95,19 +130,21 @@ class Look(Command):
 
 
 class CommandHandler:
+    """Handle commands."""
+
     def __init__(self, app, **kwargs):
+        """Initialize instance."""
         self.callbacks = set()
         self.app = app
-        self.nav_control = kwargs['nav_control']
-        self.view_control = kwargs['view_control']
+        self.nav_control = kwargs["nav_control"]
+        self.view_control = kwargs["view_control"]
 
-        self.commands = [Help(),
-                         Move(self.nav_control),
-                         Look(self.view_control)]
+        self.commands = [Help(), Move(self.nav_control), Look(self.view_control)]
 
     def parse_command(self, text):
+        """Parse the command."""
         if type(text) is not str:
-            raise ValueError(f'Command is not a string: {text}')
+            raise ValueError(f"Command is not a string: {text}")
 
         text = text.lower()
         words = text.split()
