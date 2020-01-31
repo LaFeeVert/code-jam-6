@@ -27,8 +27,8 @@ class NavControl:
 
     def __init__(self):
         self.callbacks = set()
-        self.last_distance = 1
-        self.last_direction = Directions.NORTH
+        self.distance = 1
+        self.direction = Directions.NORTH
 
     def subscribe(self, callback):
         self.callbacks.add(callback)
@@ -36,21 +36,22 @@ class NavControl:
     def unsubscribe(self, callback):
         self.callbacks.remove(callback)
 
-    def _notify(self, direction, distance):
+    def _notify(self):
+        # print("NAV", self.direction, self.distance)
         for callback in self.callbacks:
-            callback(direction, distance)
+            callback(self.direction, self.distance)
 
     def go(self, direction: Directions = None, distance: int = None):
-        direction = self.last_direction if direction is None else direction
-        distance = self.last_distance if distance is None else distance
+        if direction is not None:
+            if isinstance(direction, Directions):
+                self.direction = direction
+            else:
+                raise ValueError("Direction must a value of Directions")
 
-        if not isinstance(direction, Directions):
-            raise ValueError("Direction must a value of Directions")
+        if distance is not None:
+            if distance != 0:
+                self.distance = distance
+            else:
+                raise ValueError("Distance can not be 0")
 
-        if distance == 0:
-            raise ValueError("Distance can not be 0")
-
-        self.last_direction = direction
-        self.last_distance = distance
-
-        self._notify(direction, distance)
+        self._notify()

@@ -1,5 +1,4 @@
 """Map Controller Module."""
-from modules.map.RoomControl import EmptyCavePath
 from modules.navigation.navcont import Directions
 
 
@@ -8,9 +7,9 @@ class DungeonMap:
 
     map_vector = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-        [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 1, 0, 1, 0, 0, 1, 1, 0],
+        [0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0, 1, 9, 0],
         [0, 0, 1, 0, 1, 0, 0, 1, 0, 0],
         [0, 0, 1, 0, 1, 0, 0, 1, 0, 0],
         [0, 0, 1, 1, 1, 0, 0, 1, 0, 0],
@@ -18,6 +17,11 @@ class DungeonMap:
         [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ]
+
+    #             [[0, 0, 0, 0],
+    #              [0, 1, 1, 0],
+    #              [0, 1, 1, 0],
+    #              [0, 0, 0, 0]]
 
     def __init__(self):
         """Initialize instance."""
@@ -28,7 +32,6 @@ class DungeonMap:
         #                        [0, 1, 1],
         #                        [0, 1, 1]]
         self.did_bonk = False
-        self.rooms = self.load_map()
 
     def subscribe(self, callback):
         """Subscribe to this classes messages."""
@@ -61,35 +64,29 @@ class DungeonMap:
 
         self.current_location = new_location
         self.visible_block = self._get_visible_block()
+        # print("map", self.current_location)
+        # for b in self.visible_block:
+        #     print("map", b)
 
         self._notify()
 
     def _notify(self):
         """Send all the messages to the subscribers."""
         for sub in self.callbacks:
-            # try:
-            #     room = self.rooms[self.current_location]
-            # except:
-            #     room = None
-            # sub(self.current_location, room, self.visible_block, self.did_bonk)
             sub(self.current_location, self.visible_block, self.did_bonk)
 
     def _get_visible_block(self):
-        visible_block = [[0, 0, 0],
-                         [0, 0, 0],
-                         [0, 0, 0]]
+        # print("gvb-map", self.current_location)
+        # for m in DungeonMap.map_vector:
+        #     print("gvb-map",m)
 
-        for y in range(-1, 2):
-            for x in range(-1, 2):
-                visible_block[y + 1][x + 1] = DungeonMap.map_vector[self.current_location[0] + y][
-                    self.current_location[1] + x]
+        clrow = self.current_location[0]
+        clcol = self.current_location[1]-1
+        visible_block = [DungeonMap.map_vector[clrow-1][clcol:clcol+3],
+                         DungeonMap.map_vector[clrow][clcol:clcol+3],
+                         DungeonMap.map_vector[clrow+1][clcol:clcol+3]]
+        # print("gvb-map", self.current_location)
+        # for b in visible_block:
+        #     print("gvb-map", b)
 
         return visible_block
-
-    def load_map(self):
-        room_map = {}
-        for y in range(len(DungeonMap.map_vector)):
-            for x in range(len(DungeonMap.map_vector)):
-                if DungeonMap.map_vector[y][x] == 1:
-                    room_map[(y, x)] = EmptyCavePath()
-        return room_map

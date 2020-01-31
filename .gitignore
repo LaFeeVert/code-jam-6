@@ -109,3 +109,4 @@ venv.bak/
 # JetBrains IDE
 .idea/
 *.db
+.pydevproject
